@@ -9,7 +9,26 @@ namespace QYPlugin
 {
     public static class Robot
     {
+        private static class DllEvents
+        {
+            [DllExport]
+            public static int _eventStartup() => 0;
+            [DllExport]
+            public static int _eventExit() => 0;
+            [DllExport]
+            public static int _eventDisable() => 0;
+            [DllExport]
+            public static int _eventEnable() => 0;
+            [DllExport]
+            public static int Initialize(int ac, int pt)
+            {
+                AuthCode = ac;
+                ProtocolType = pt;
+                return 0;
+            }
+        }
         private static int AuthCode;
+        private static int ProtocolType;
 
         /// <summary>
         /// 获取应用数据目录
