@@ -31,8 +31,7 @@ namespace QYPlugin
             [DllExport]
             public static int _menuSet()
             {
-                SetForm setForm = new SetForm();
-                setForm.Show();
+                new SetForm().Show();
                 return 0;
             }
             [DllExport]
