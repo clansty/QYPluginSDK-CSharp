@@ -243,10 +243,72 @@ namespace QYPlugin
         }
     }
 
+    /// <summary>
+    /// 表示机器人的在线状态
+    /// </summary>
     public enum OnlineStatus
     {
+        /// <summary>
+        /// 表示机器人当前离线
+        /// </summary>
         offline = 0,
+        /// <summary>
+        /// 表示机器人当前在线
+        /// </summary>
         online = 1
+    }
+    /// <summary>
+    /// 日志输出的字体颜色
+    /// </summary>
+    public enum LogColor
+    {
+        /// <summary>
+        /// 暗淡的灰色
+        /// <para>6908265
+        /// #696969
+        /// 105,105,105</para>
+        /// </summary>
+        dimGray = 0,
+        /// <summary>
+        /// 纯黑
+        /// <para>0         #000000  0,0,0</para>
+        /// </summary>
+        black = 10,
+        /// <summary>
+        /// 深紫罗兰的蓝色
+        /// <para>14822282  #8A2BE2  138,43,226</para>
+        /// </summary>
+        blueViolet = 11,
+        /// <summary>
+        /// 棕色
+        /// <para>2763429   #A52A2A  165,42,42</para>
+        /// </summary>
+        brown = 12,
+        /// <summary>
+        /// 纯蓝
+        /// <para>16711680  #0000FF  0,0,255</para>
+        /// </summary>
+        blue = 13,
+        /// <summary>
+        /// 纯绿
+        /// <para>32768     #008000  0,128,0</para>
+        /// </summary>
+        green = 14,
+        /// <summary>
+        /// 深橙色
+        /// <para>36095     #FF8C00  255,140,0</para>
+        /// </summary>
+        darkOrange = 20,
+        /// <summary>
+        /// 深粉色
+        /// <para>9639167   #FF1493  255,20,147</para>
+        /// </summary>
+        deepPink = 30,
+        /// <summary>
+        /// 纯红
+        /// <para>255       #FF0000  255,0,0</para>
+        /// </summary>
+        red = 40
     }
 
     public class FriendMsgArgs : EventArgs
@@ -272,7 +334,6 @@ namespace QYPlugin
         /// <returns>是否成功</returns>
         public bool Reply(string msg) => Robot.Send.Friend(FromQQ, msg);
     }
-
     public class GroupTmpMsgArgs : FriendMsgArgs
     {
         public GroupTmpMsgArgs(long fq, long fg, string m) : base(fq, m)
