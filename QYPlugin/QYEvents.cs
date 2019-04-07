@@ -21,10 +21,12 @@ namespace QYPlugin
         public static void FriendMsg(FriendMsgArgs e)
         {
             // 这里处理好友消息
+            e.Reply("你发了好友消息 " + e.Msg);
         }
         public static void GroupTmpMsg(GroupTmpMsgArgs e)
         {
             // 这里处理群临时消息
+            e.Reply("你发了群临时消息 " + e.Msg);
         }
     }
 }
