@@ -193,11 +193,74 @@ namespace QYPlugin
             [DllImport("QYOffer.dll")]
             private static extern int QY_sendFriendMsg(int authCode, long qqID, long target, string msg);
 
+            /// <summary>
+            /// 发送群消息 
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <param name="msg">消息内容</param>
+            /// <returns>是否成功</returns>
+            public static bool Group(string group, string msg)
+            {
+                bool res = long.TryParse(group, out long targ);
+                if (!res)
+                    return false;
+                int ret = QY_sendGroupMsg(AuthCode, LongQQ, targ, msg);
+                return ret == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_sendGroupMsg(int authCode, long qqID, long target, string msg);
+
+            /// <summary>
+            /// 发送群临时消息
+            /// </summary>
+            /// <param name="group">收件人所在群号</param>
+            /// <param name="qq">收件人 QQ</param>
+            /// <param name="msg">待发送消息内容</param>
+            /// <returns>是否成功</returns>
+            public static bool GTmp(string group, string qq, string msg)
+            {
+                bool res = long.TryParse(group, out long targ);
+                if (!res)
+                    return false;
+                res = long.TryParse(qq, out long targqq);
+                if (!res)
+                    return false;
+                int ret = QY_sendGroupTmpMsg(AuthCode, LongQQ, targ, targqq, msg);
+                return ret == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_sendGroupTmpMsg(int authCode, long qqID, long target, long targqq, string msg);
+
         }
     }
+
     public enum OnlineStatus
     {
         offline = 0,
         online = 1
+    }
+
+    public class FriendMsgArgs : EventArgs
+    {
+        public FriendMsgArgs(long fq, string m)
+        {
+            FromQQ = fq.ToString();
+            Msg = m;
+        }
+        public string FromQQ { get; }
+        public string Msg { get; }
+
+        public bool Reply(string msg) => Robot.Send.Friend(FromQQ, msg);
+    }
+
+    public class GroupTmpMsgArgs : FriendMsgArgs
+    {
+        public GroupTmpMsgArgs(long fq, long fg, string m) : base(fq, m)
+        {
+            FromGroup = fg.ToString();
+        }
+        public string FromGroup { get; }
+
+        public new bool Reply(string msg) => Robot.Send.GTmp(FromGroup, FromQQ, msg);
     }
 }

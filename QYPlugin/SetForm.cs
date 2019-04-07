@@ -35,5 +35,20 @@ namespace QYPlugin
         {
             OutPut = Robot.Status.ToString();
         }
+
+        private void SendFriend_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.Send.Friend(targqq.Text, tmsg.Text) ? "成功" : "失败";
+        }
+
+        private void SendGroup_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.Send.Group(targGroup.Text, tmsg.Text) ? "成功" : "失败";
+        }
+
+        private void GroupTmp_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.Send.GTmp(targGroup.Text, targqq.Text, tmsg.Text) ? "成功" : "失败";
+        }
     }
 }
