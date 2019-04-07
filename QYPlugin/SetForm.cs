@@ -25,5 +25,15 @@ namespace QYPlugin
         {
             OutPut = Robot.LoginQQ;
         }
+
+        private void LoginNick_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.LoginNick;
+        }
+
+        private void LoginStatus_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.Status.ToString();
+        }
     }
 }

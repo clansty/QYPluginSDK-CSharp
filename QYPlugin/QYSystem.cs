@@ -6,8 +6,12 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
+// 建议用户不要更改此文件，除非你确信你看得懂这里面所有代码并且你的操作没有问题
 namespace QYPlugin
 {
+    /// <summary>
+    /// 执行 QY 机器人相关操作
+    /// </summary>
     public static class Robot
     {
         private static class DllEvents
@@ -134,7 +138,11 @@ namespace QYPlugin
         [DllImport("QYOffer.dll")]
         private static extern IntPtr QY_getAppDirectory(int authCode);
 
-        public static string LoginQQ
+        /// <summary>
+        /// 获取当前登录的 QQ 号
+        /// </summary>
+        public static string LoginQQ => LongQQ.ToString();
+        private static long LongQQ
         {
             get
             {
@@ -143,11 +151,53 @@ namespace QYPlugin
                 long qq = 0;
                 if (u.NextInt > 0)
                     qq = u.NextLong;
-                return qq == 0 ? "" : qq.ToString();
+                return qq;
             }
         }
         [DllImport("QYOffer.dll")]
         private static extern IntPtr QY_getLoginQQList(int authCode);
 
+        /// <summary>
+        /// 获取当前登录 QQ 的昵称
+        /// </summary>
+        public static string LoginNick => Marshal.PtrToStringAnsi(QY_getLoginNick(AuthCode, LongQQ));
+        [DllImport("QYOffer.dll")]
+        private static extern IntPtr QY_getLoginNick(int authCode, long qqID);
+
+        /// <summary>
+        /// 获取当前框架登录 QQ 的在线状态
+        /// </summary>
+        public static OnlineStatus Status => (OnlineStatus)QY_getFrameAccountState(AuthCode, LongQQ);
+        [DllImport("QYOffer.dll")]
+        private static extern int QY_getFrameAccountState(int authCode, long qqID);
+
+        /// <summary>
+        /// 用于机器人框架发送消息
+        /// </summary>
+        public static class Send
+        {
+            /// <summary>
+            /// 发送好友消息 
+            /// </summary>
+            /// <param name="qq">收件人 QQ</param>
+            /// <param name="msg">消息内容</param>
+            /// <returns>是否成功</returns>
+            public static bool Friend(string qq, string msg)
+            {
+                bool res = long.TryParse(qq, out long targ);
+                if (!res)
+                    return false;
+                int ret = QY_sendFriendMsg(AuthCode, LongQQ, targ, msg);
+                return ret == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_sendFriendMsg(int authCode, long qqID, long target, string msg);
+
+        }
+    }
+    public enum OnlineStatus
+    {
+        offline = 0,
+        online = 1
     }
 }

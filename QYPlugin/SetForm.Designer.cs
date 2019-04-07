@@ -31,6 +31,8 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.getAppDir = new System.Windows.Forms.Button();
             this.getLoginQQ = new System.Windows.Forms.Button();
+            this.LoginNick = new System.Windows.Forms.Button();
+            this.LoginStatus = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // textBox1
@@ -61,11 +63,33 @@
             this.getLoginQQ.UseVisualStyleBackColor = true;
             this.getLoginQQ.Click += new System.EventHandler(this.GetLoginQQ);
             // 
+            // LoginNick
+            // 
+            this.LoginNick.Location = new System.Drawing.Point(174, 12);
+            this.LoginNick.Name = "LoginNick";
+            this.LoginNick.Size = new System.Drawing.Size(75, 23);
+            this.LoginNick.TabIndex = 3;
+            this.LoginNick.Text = "登录昵称";
+            this.LoginNick.UseVisualStyleBackColor = true;
+            this.LoginNick.Click += new System.EventHandler(this.LoginNick_Click);
+            // 
+            // LoginStatus
+            // 
+            this.LoginStatus.Location = new System.Drawing.Point(255, 12);
+            this.LoginStatus.Name = "LoginStatus";
+            this.LoginStatus.Size = new System.Drawing.Size(75, 23);
+            this.LoginStatus.TabIndex = 4;
+            this.LoginStatus.Text = "在线状态";
+            this.LoginStatus.UseVisualStyleBackColor = true;
+            this.LoginStatus.Click += new System.EventHandler(this.LoginStatus_Click);
+            // 
             // SetForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.LoginStatus);
+            this.Controls.Add(this.LoginNick);
             this.Controls.Add(this.getLoginQQ);
             this.Controls.Add(this.getAppDir);
             this.Controls.Add(this.textBox1);
@@ -81,5 +105,7 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button getAppDir;
         private System.Windows.Forms.Button getLoginQQ;
+        private System.Windows.Forms.Button LoginNick;
+        private System.Windows.Forms.Button LoginStatus;
     }
 }
