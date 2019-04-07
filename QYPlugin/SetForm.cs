@@ -12,9 +12,18 @@ namespace QYPlugin
 {
     public partial class SetForm : Form
     {
-        public SetForm()
+        public SetForm() => InitializeComponent();
+
+        private string OutPut { set => textBox1.Text = value; }
+
+        private void GetAppDir(object sender, EventArgs e)
         {
-            InitializeComponent();
+            OutPut = Robot.AppDirectory;
+        }
+
+        private void GetLoginQQ(object sender, EventArgs e)
+        {
+            OutPut = Robot.LoginQQ;
         }
     }
 }
