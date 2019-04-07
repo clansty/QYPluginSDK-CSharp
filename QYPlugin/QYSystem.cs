@@ -241,6 +241,42 @@ namespace QYPlugin
             private static extern int QY_sendGroupTmpMsg(int authCode, long qqID, long target, long targqq, string msg);
 
         }
+
+        /// <summary>
+        /// 在框架中记录日志
+        /// </summary>
+        /// <param name="content">内容</param>
+        /// <param name="eventt">事件</param>
+        /// <param name="color">颜色</param>
+        public static void Log(string content, string eventt = "日志", LogColor color = LogColor.dimGray) => QY_addLog(AuthCode, 0, (int)color, eventt, content);
+        [DllImport("QYOffer.dll")]
+        private static extern int QY_addLog(int authCode, long qqID, int a, string b, string c);
+
+        /// <summary>
+        /// 点赞，用一次赞一下，每天可赞五十下
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <returns>结果的枚举</returns>
+        public static LikeResult Like(string target)
+        {
+            bool isok = long.TryParse(target, out long t);
+            if (!isok)
+                return LikeResult.notQQ;
+            int res = QY_sendLikeFavorite(AuthCode, LongQQ, t);
+            switch (res)
+            {
+                case 0:
+                    return LikeResult.success;
+                case 1:
+                    return LikeResult.notAllowed;
+                case 51:
+                    return LikeResult.full;
+            }
+            return LikeResult.other;
+        }
+        [DllImport("QYOffer.dll")]
+        private static extern int QY_sendLikeFavorite(int authCode, long qqID, long targ);
+
     }
 
     /// <summary>
@@ -309,6 +345,32 @@ namespace QYPlugin
         /// <para>255       #FF0000  255,0,0</para>
         /// </summary>
         red = 40
+    }
+    /// <summary>
+    /// 点赞的结果
+    /// </summary>
+    public enum LikeResult
+    {
+        /// <summary>
+        /// 赞成功
+        /// </summary>
+        success,
+        /// <summary>
+        /// 对方不允许非好友点赞
+        /// </summary>
+        notAllowed,
+        /// <summary>
+        /// 今天已赞满
+        /// </summary>
+        full,
+        /// <summary>
+        /// 指定的目标不是正确的 QQ 号
+        /// </summary>
+        notQQ,
+        /// <summary>
+        /// 其他错误
+        /// </summary>
+        other
     }
 
     public class FriendMsgArgs : EventArgs

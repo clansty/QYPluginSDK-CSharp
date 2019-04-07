@@ -42,6 +42,7 @@
             this.SendFriend = new System.Windows.Forms.Button();
             this.SendGroup = new System.Windows.Forms.Button();
             this.GroupTmp = new System.Windows.Forms.Button();
+            this.Like = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // textBox1
@@ -173,11 +174,22 @@
             this.GroupTmp.UseVisualStyleBackColor = true;
             this.GroupTmp.Click += new System.EventHandler(this.GroupTmp_Click);
             // 
+            // Like
+            // 
+            this.Like.Location = new System.Drawing.Point(579, 12);
+            this.Like.Name = "Like";
+            this.Like.Size = new System.Drawing.Size(75, 23);
+            this.Like.TabIndex = 14;
+            this.Like.Text = "点赞";
+            this.Like.UseVisualStyleBackColor = true;
+            this.Like.Click += new System.EventHandler(this.Like_Click);
+            // 
             // SetForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.Like);
             this.Controls.Add(this.GroupTmp);
             this.Controls.Add(this.SendGroup);
             this.Controls.Add(this.SendFriend);
@@ -215,5 +227,6 @@
         private System.Windows.Forms.Button SendFriend;
         private System.Windows.Forms.Button SendGroup;
         private System.Windows.Forms.Button GroupTmp;
+        private System.Windows.Forms.Button Like;
     }
 }

@@ -50,5 +50,10 @@ namespace QYPlugin
         {
             OutPut = Robot.Send.GTmp(targGroup.Text, targqq.Text, tmsg.Text) ? "成功" : "失败";
         }
+
+        private void Like_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.Like(targqq.Text).ToString();
+        }
     }
 }
