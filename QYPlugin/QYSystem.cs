@@ -45,6 +45,15 @@ namespace QYPlugin
             [DllExport(CallingConvention.StdCall)]
             public static int _eventPrivateMsg(long QQID, int subType, long sendTime, long fromQQ, long fromID, string fromInfo, string msg, string info, int test)
             {
+                switch(subType)
+                {
+                    case 11:
+                        QYEvents.FriendMsg(new FriendMsgArgs(fromQQ, msg));
+                        break;
+                    case 2:
+                        QYEvents.GroupTmpMsg(new GroupTmpMsgArgs(fromQQ, fromID, msg));
+                        break;
+                }
                 return 0;
             }
             [DllExport(CallingConvention.StdCall)]
