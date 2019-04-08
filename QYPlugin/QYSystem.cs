@@ -277,72 +277,158 @@ namespace QYPlugin
         [DllImport("QYOffer.dll")]
         private static extern int QY_sendLikeFavorite(int authCode, long qqID, long targ);
 
-        /// <summary>
-        /// 设置群全员禁言
-        /// </summary>
-        /// <param name="group">群号</param>
-        /// <returns>是否成功</returns>
-        private static bool GroupMuteOn(string group)
+        public static class Group
         {
-            bool isok = long.TryParse(group, out long t);
-            if (!isok)
-                return false;
-            return QY_setGroupWholeBanSpeak(AuthCode, LongQQ, t, 1) == 0;
-        }
-        /// <summary>
-        /// 解除群全员禁言
-        /// </summary>
-        /// <param name="group">群号</param>
-        /// <returns>是否成功</returns>
-        private static bool GroupMuteOff(string group)
-        {
-            bool isok = long.TryParse(group, out long t);
-            if (!isok)
-                return false;
-            return QY_setGroupWholeBanSpeak(AuthCode, LongQQ, t, 0) == 0;
-        }
-        [DllImport("QYOffer.dll")]
-        private static extern int QY_setGroupWholeBanSpeak(int authCode, long qqID, long targ, int s);
+            /// <summary>
+            /// 设置群全员禁言
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <returns>是否成功</returns>
+            private static bool AllMuteOn(string group)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                return QY_setGroupWholeBanSpeak(AuthCode, LongQQ, t, 1) == 0;
+            }
+            /// <summary>
+            /// 解除群全员禁言
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <returns>是否成功</returns>
+            private static bool AllMuteOff(string group)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                return QY_setGroupWholeBanSpeak(AuthCode, LongQQ, t, 0) == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_setGroupWholeBanSpeak(int authCode, long qqID, long targ, int s);
 
-        /// <summary>
-        /// 群成员禁言
-        /// </summary>
-        /// <param name="group">群号</param>
-        /// <param name="member">成员 QQ</param>
-        /// <param name="time">以秒为单位的时间，解禁则为 0</param>
-        /// <returns>是否成功</returns>
-        private static bool GroupMemberMute(string group, string member, long time)
-        {
-            bool isok = long.TryParse(group, out long t);
-            if (!isok)
-                return false;
-            isok = long.TryParse(member, out long m);
-            if (!isok)
-                return false;
-            return QY_setGroupMembersBanSpeak(AuthCode, LongQQ, t, m, time) == 0;
-        }
-        [DllImport("QYOffer.dll")]
-        private static extern int QY_setGroupMembersBanSpeak(int authCode, long qqID, long targ, long s, long a);
+            /// <summary>
+            /// 群成员禁言
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <param name="member">成员 QQ</param>
+            /// <param name="time">以秒为单位的时间，解禁则为 0</param>
+            /// <returns>是否成功</returns>
+            private static bool MuteMember(string group, string member, long time)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                isok = long.TryParse(member, out long m);
+                if (!isok)
+                    return false;
+                return QY_setGroupMembersBanSpeak(AuthCode, LongQQ, t, m, time) == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_setGroupMembersBanSpeak(int authCode, long qqID, long targ, long s, long a);
 
-        /// <summary>
-        /// 更改群成员名片
-        /// </summary>
-        /// <param name="group">群号</param>
-        /// <param name="member">成员 QQ</param>
-        /// <param name="name">新的群名片</param>
-        /// <returns>是否成功</returns>
-        private static bool SetGroupCard(string group, string member, string name)
-        {
-            bool isok = long.TryParse(group, out long t);
-            if (!isok)
-                return false;
-            isok = long.TryParse(member, out long m);
-            if (!isok)
-                return false;
-            return QY_setModifyGroupMemberCard(AuthCode, LongQQ, t, m, name) == 0;
+            /// <summary>
+            /// 更改群成员名片
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <param name="member">成员 QQ</param>
+            /// <param name="name">新的群名片</param>
+            /// <returns>是否成功</returns>
+            private static bool SetCard(string group, string member, string name)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                isok = long.TryParse(member, out long m);
+                if (!isok)
+                    return false;
+                return QY_setModifyGroupMemberCard(AuthCode, LongQQ, t, m, name) == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_setModifyGroupMemberCard(int authCode, long qqID, long targ, long s, string a);
+
+            /// <summary>
+            /// 群踢人
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <param name="member">被踢的人</param>
+            /// <param name="RejectJoin">是否拒绝其再次申请加入</param>
+            /// <returns>是否成功</returns>
+            private static bool RemoveMember(string group, string member, bool RejectJoin = false)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                isok = long.TryParse(member, out long m);
+                if (!isok)
+                    return false;
+                return QY_setGroupMembersKick(AuthCode, LongQQ, t, m, RejectJoin ? 1 : 0) == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_setGroupMembersKick(int authCode, long qqID, long targ, long s, int a);
+
+            /// <summary>
+            /// 允许群匿名聊天
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <returns>是否成功</returns>
+            private static bool AllowAnonymous(string group)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                return QY_setGroupAnonymousBan(AuthCode, LongQQ, t, 0) == 0;
+            }
+            /// <summary>
+            /// 禁止群匿名聊天
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <returns>是否成功</returns>
+            private static bool DisallowAnonymous(string group)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                return QY_setGroupAnonymousBan(AuthCode, LongQQ, t, 1) == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_setGroupAnonymousBan(int authCode, long qqID, long targ, int s);
+
+            /// <summary>
+            /// 设置管理员
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <param name="member">群成员</param>
+            /// <returns>是否成功</returns>
+            private static bool AddAdmin(string group, string member)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                isok = long.TryParse(member, out long m);
+                if (!isok)
+                    return false;
+                return QY_setGroupAdmini(AuthCode, LongQQ, t, m, 1) == 0;
+            }
+            /// <summary>
+            /// 撤销管理员
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <param name="member">成员</param>
+            /// <returns></returns>
+            private static bool RemoveAdmin(string group, string member)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                isok = long.TryParse(member, out long m);
+                if (!isok)
+                    return false;
+                return QY_setGroupAdmini(AuthCode, LongQQ, t, m, 0) == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_setGroupAdmini(int authCode, long qqID, long targ, long s, int a);
+
         }
-        [DllImport("QYOffer.dll")]
-        private static extern int QY_setModifyGroupMemberCard(int authCode, long qqID, long targ, long s, string a);
 
     }
 
