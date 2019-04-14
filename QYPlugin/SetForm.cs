@@ -55,5 +55,47 @@ namespace QYPlugin
         {
             OutPut = Robot.Like(targqq.Text).ToString();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.Group.AllMuteOn(targGroup.Text) ? "ok" : "fail";
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.Group.AllMuteOff(targGroup.Text) ? "ok" : "fail";
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.Group.MuteMember(targGroup.Text, targqq.Text, 300) ? "ok" : "fail";
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.Group.MuteMember(targGroup.Text, targqq.Text, 0) ? "ok" : "fail";
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.Group.SetCard(targGroup.Text, targqq.Text, tmsg.Text) ? "ok" : "fail";
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.Group.RemoveMember(targGroup.Text, targqq.Text) ? "ok" : "fail";
+
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            OutPut = Robot.Group.GetCard(targGroup.Text, targqq.Text);
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            GroupInfo info = Robot.Group.GetInfo(targGroup.Text);
+            OutPut = info.ID + info.Master + info.MaxPopu.ToString() + info.Popu.ToString() + info.Name + info.Level.ToString() + info.Description;
+        }
     }
 }

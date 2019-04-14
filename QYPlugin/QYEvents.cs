@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace QYPlugin
 {
-    public static class PluginInfo
+    public static class PluginInfo //插件的相关信息
     {
-        public const string name = "某个 C# 契约应用";
-        public const string appid = "com.clansty.qyapp";
-        public const string version = "1.0";
-        public const int versionId = 1;
-        public const string author = "凌莞";
-        public const string description = "凌莞优化重制版 C# SDK";
+        public const string name = "某个 C# 契约应用"; //名称
+        public const string appid = "com.clansty.qyapp"; //标识
+        public const string version = "1.0"; //版本
+        public const int versionId = 1; //版本ID
+        public const string author = "凌莞"; //作者
+        public const string description = "凌莞优化重制版 C# SDK"; // 简介
     }
 
     public static class QYEvents

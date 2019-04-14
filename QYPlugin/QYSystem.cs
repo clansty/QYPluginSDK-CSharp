@@ -132,7 +132,26 @@ namespace QYPlugin
                     return BitConverter.ToInt64(buffer, 0);
                 }
             }
+            public short NextShort
+            {
+                get
+                {
+                    byte[] buffer = br.ReadBytes(2);
+                    Array.Reverse(buffer);
+                    return BitConverter.ToInt16(buffer, 0);
+                }
+            }
+            public string NextStr
+            {
+                get
+                {
+                    short l = NextShort;
+                    byte[] buffer = br.ReadBytes(l);
+                    return Encoding.Default.GetString(buffer);
+                }
+            }
 
+            public void skip(short l) => br.ReadBytes(l);
         }
 
         private static int AuthCode { get; set; }
@@ -277,6 +296,9 @@ namespace QYPlugin
         [DllImport("QYOffer.dll")]
         private static extern int QY_sendLikeFavorite(int authCode, long qqID, long targ);
 
+        /// <summary>
+        /// 进行与群组相关的操作
+        /// </summary>
         public static class Group
         {
             /// <summary>
@@ -284,7 +306,7 @@ namespace QYPlugin
             /// </summary>
             /// <param name="group">群号</param>
             /// <returns>是否成功</returns>
-            private static bool AllMuteOn(string group)
+            public static bool AllMuteOn(string group)
             {
                 bool isok = long.TryParse(group, out long t);
                 if (!isok)
@@ -296,7 +318,7 @@ namespace QYPlugin
             /// </summary>
             /// <param name="group">群号</param>
             /// <returns>是否成功</returns>
-            private static bool AllMuteOff(string group)
+            public static bool AllMuteOff(string group)
             {
                 bool isok = long.TryParse(group, out long t);
                 if (!isok)
@@ -313,7 +335,7 @@ namespace QYPlugin
             /// <param name="member">成员 QQ</param>
             /// <param name="time">以秒为单位的时间，解禁则为 0</param>
             /// <returns>是否成功</returns>
-            private static bool MuteMember(string group, string member, long time)
+            public static bool MuteMember(string group, string member, long time = 0)
             {
                 bool isok = long.TryParse(group, out long t);
                 if (!isok)
@@ -333,7 +355,7 @@ namespace QYPlugin
             /// <param name="member">成员 QQ</param>
             /// <param name="name">新的群名片</param>
             /// <returns>是否成功</returns>
-            private static bool SetCard(string group, string member, string name)
+            public static bool SetCard(string group, string member, string name)
             {
                 bool isok = long.TryParse(group, out long t);
                 if (!isok)
@@ -353,7 +375,7 @@ namespace QYPlugin
             /// <param name="member">被踢的人</param>
             /// <param name="RejectJoin">是否拒绝其再次申请加入</param>
             /// <returns>是否成功</returns>
-            private static bool RemoveMember(string group, string member, bool RejectJoin = false)
+            public static bool RemoveMember(string group, string member, bool RejectJoin = false)
             {
                 bool isok = long.TryParse(group, out long t);
                 if (!isok)
@@ -371,7 +393,7 @@ namespace QYPlugin
             /// </summary>
             /// <param name="group">群号</param>
             /// <returns>是否成功</returns>
-            private static bool AllowAnonymous(string group)
+            public static bool AllowAnonymous(string group)
             {
                 bool isok = long.TryParse(group, out long t);
                 if (!isok)
@@ -383,7 +405,7 @@ namespace QYPlugin
             /// </summary>
             /// <param name="group">群号</param>
             /// <returns>是否成功</returns>
-            private static bool DisallowAnonymous(string group)
+            public static bool DisallowAnonymous(string group)
             {
                 bool isok = long.TryParse(group, out long t);
                 if (!isok)
@@ -399,7 +421,7 @@ namespace QYPlugin
             /// <param name="group">群号</param>
             /// <param name="member">群成员</param>
             /// <returns>是否成功</returns>
-            private static bool AddAdmin(string group, string member)
+            public static bool AddAdmin(string group, string member)
             {
                 bool isok = long.TryParse(group, out long t);
                 if (!isok)
@@ -415,7 +437,7 @@ namespace QYPlugin
             /// <param name="group">群号</param>
             /// <param name="member">成员</param>
             /// <returns></returns>
-            private static bool RemoveAdmin(string group, string member)
+            public static bool RemoveAdmin(string group, string member)
             {
                 bool isok = long.TryParse(group, out long t);
                 if (!isok)
@@ -428,8 +450,187 @@ namespace QYPlugin
             [DllImport("QYOffer.dll")]
             private static extern int QY_setGroupAdmini(int authCode, long qqID, long targ, long s, int a);
 
+            /// <summary>
+            /// 退出群，如果指定自己创建的群，则解散群
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <returns></returns>
+            public static bool Exit(string group)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                return QY_setExitGroupChat(AuthCode, LongQQ, t, 1) == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_setExitGroupChat(int authCode, long qqID, long targ, int s);
+
+            /// <summary>
+            /// 设置专属头衔
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <param name="member">成员</param>
+            /// <param name="title">专属头衔，删除留空</param>
+            /// <returns></returns>
+            public static bool SetTitle(string group, string member, string title = "")
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                isok = long.TryParse(member, out long m);
+                if (!isok)
+                    return false;
+                return QY_setGroupSpecialTitle(AuthCode, LongQQ, t, m, title, -1) == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_setGroupSpecialTitle(int authCode, long qqID, long targ, long s, string q, int a);
+
+            /// <summary>
+            /// 添加群
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <param name="msg">附加申请信息</param>
+            /// <returns></returns>
+            public static bool Add(string group, string msg = "")
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                return QY_setAddGroup(AuthCode, LongQQ, t, msg) == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_setAddGroup(int authCode, long qqID, long targ, string s);
+
+            /// <summary>
+            /// 上传群文件
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <param name="path">文件本地路径</param>
+            /// <param name="folder">群内的文件夹</param>
+            /// <returns></returns>
+            public static bool UploadFile(string group, string path, string folder = "/")
+            {
+                bool res = long.TryParse(group, out long t);
+                if (!res)
+                    return false;
+                res = File.Exists(path);
+                if (!res)
+                    return false;
+                return QY_setGroupFileUpload(AuthCode, LongQQ, t, folder, path) == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_setGroupFileUpload(int authCode, long qqID, long targ, string s, string a);
+
+            /// <summary>
+            /// 取群名片
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <param name="member">成员</param>
+            /// <returns></returns>
+            public static string GetCard(string group, string member)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return "";
+                isok = long.TryParse(member, out long m);
+                if (!isok)
+                    return "";
+                string b64 = Marshal.PtrToStringAnsi(QY_getGroupMemberCard(AuthCode, LongQQ, t, m, false));
+                Unpack u = new Unpack(b64);
+                return u.NextStr;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern IntPtr QY_getGroupMemberCard(int authCode, long qqID, long targ, long s, bool a);
+
+            /// <summary>
+            /// 取群组的信息
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <returns></returns>
+            public static GroupInfo GetInfo(string group)
+            {
+                long.TryParse(group, out long t);
+                string b64 = Marshal.PtrToStringAnsi(QY_getGroupInfo(AuthCode, LongQQ, t));
+                Unpack u = new Unpack(b64);
+                long a = u.NextLong;
+                long b = u.NextLong;
+                u.skip(4);
+                int c = u.NextInt;
+                int d = u.NextInt;
+                string e = u.NextStr;
+                u.skip(u.NextShort);
+                int f = u.NextInt;
+                return new GroupInfo(a, b, c, d, e, f, u.NextStr);
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern IntPtr QY_getGroupInfo(int authCode, long qqID, long targ);
         }
 
+        /// <summary>
+        /// 删除好友
+        /// </summary>
+        /// <param name="target">被删除的好友QQ</param>
+        /// <returns></returns>
+        public static bool RemoveFriend(string target)
+        {
+            bool res = long.TryParse(target, out long targ);
+            if (!res)
+                return false;
+            return QY_setDelFriend(AuthCode, LongQQ, targ) == 0;
+        }
+        [DllImport("QYOffer.dll")]
+        private static extern int QY_setDelFriend(int authCode, long qqID, long targ);
+
+
+    }
+
+    /// <summary>
+    /// 进行 LQ 码生成
+    /// </summary>
+    public static class LQ
+    {
+        /// <summary>
+        /// 艾特全员
+        /// </summary>
+        public const string AtAll = "[@all] ";
+        /// <summary>
+        /// 艾特人
+        /// </summary>
+        /// <param name="qq">人</param>
+        /// <returns></returns>
+        public static string At(string qq) => $"[@{qq}] ";
+
+        /// <summary>
+        /// 表示本地图片，插入到待发送的消息里
+        /// </summary>
+        /// <param name="path">图片路径</param>
+        /// <returns></returns>
+        public static string LocalPic(string path) => $"[LQ:image,path={path.Escape()}]";
+        /// <summary>
+        /// 表示网络图片，插入到待发送的消息里
+        /// </summary>
+        /// <param name="url">网络图片 URL 地址</param>
+        /// <returns></returns>
+        public static string WebPic(string url) => $"[LQ:image,urls={url.Escape()}]";
+        /// <summary>
+        /// 闪照
+        /// </summary>
+        /// <param name="path">图片路径</param>
+        /// <returns></returns>
+        public static string FlashPic(string path) => $"[LQ:flashpic,path={path.Escape()}]";
+        /// <summary>
+        /// 发送本地语音
+        /// </summary>
+        /// <param name="path">语音文件路径</param>
+        /// <returns></returns>
+        public static string Record(string path) => $"[LQ:record,path={path.Escape()}]";
+
+        /// <summary>
+        /// 转义
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        private static string Escape(this string str) => str.Replace("&", "&amp;").Replace("[", "&#91;").Replace("]", "&#93;").Replace(",", "&#44;");
     }
 
     /// <summary>
@@ -524,6 +725,51 @@ namespace QYPlugin
         /// 其他错误
         /// </summary>
         other
+    }
+    /// <summary>
+    /// 群组信息
+    /// </summary>
+    public struct GroupInfo
+    {
+        /// <summary>
+        /// 群号
+        /// </summary>
+        public string ID { get; }
+        /// <summary>
+        /// 群主QQ
+        /// </summary>
+        public string Master { get; }
+        /// <summary>
+        /// 最大人口容量
+        /// </summary>
+        public int MaxPopu { get; }
+        /// <summary>
+        /// 当前人口数
+        /// </summary>
+        public int Popu { get; }
+        /// <summary>
+        /// 群名称
+        /// </summary>
+        public string Name { get; }
+        /// <summary>
+        /// 群等级
+        /// </summary>
+        public int Level { get; }
+        /// <summary>
+        /// 群介绍
+        /// </summary>
+        public string Description { get; }
+
+        public GroupInfo(long a, long b, int c, int d, string e, int f, string g)
+        {
+            ID = a.ToString();
+            Master = b.ToString();
+            MaxPopu = c;
+            Popu = d;
+            Name = e;
+            Level = f;
+            Description = g;
+        }
     }
 
     public class FriendMsgArgs : EventArgs
