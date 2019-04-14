@@ -8,12 +8,12 @@ namespace QYPlugin
 {
     public static class PluginInfo
     {
-        public static readonly string name = "某个 C# 契约应用";
-        public static readonly string appid = "com.clansty.qyapp";
-        public static readonly string version = "1.0";
-        public static readonly int versionId = 1;
-        public static readonly string author = "凌莞";
-        public static readonly string description = "凌莞优化重制版 C# SDK";
+        public const string name = "某个 C# 契约应用";
+        public const string appid = "com.clansty.qyapp";
+        public const string version = "1.0";
+        public const int versionId = 1;
+        public const string author = "凌莞";
+        public const string description = "凌莞优化重制版 C# SDK";
     }
 
     public static class QYEvents
