@@ -59,6 +59,16 @@ namespace QYPlugin
             [DllExport(CallingConvention.StdCall)]
             public static int _eventGroupMsg(long QQID, int subType, long sendTime, long fromGroup, long fromQQ, string fromInfo, string msg, string info, int test)
             {
+                Dictionary<string, string> ifo = InfoParse(fromInfo);
+
+                Unpack u = new Unpack(ifo["GExtraInfo"]);
+                string nick = u.NextStr;
+                string gc = u.NextStr;
+                u.Skip(12);
+                string title = u.NextStr;
+
+                QYEvents.GroupMsg(new GroupMsgArgs(fromQQ, fromGroup, msg, ifo["srcmsg"], gc == "" ? nick : gc, title, ifo["MsgInfo"], AuthCode));
+
                 return 0;
             }
             [DllExport(CallingConvention.StdCall)]
@@ -95,6 +105,20 @@ namespace QYPlugin
             public static int _eventRequest_AddGroup(long QQID, int subType, long sendTime, long fromGroup, long fromQQ, string source, string msg, string responseFlag)
             {
                 return 0;
+            }
+
+            private static Dictionary<string, string> InfoParse(string base64)
+            {
+                Dictionary<string, string> pairs = new Dictionary<string, string>();
+                Unpack u = new Unpack(base64);
+                int count = u.NextInt;
+                for(int i = 0; i < count; i++)
+                {
+                    Unpack n = new Unpack(u.NextToken);
+                    string key = n.NextStr;
+                    pairs[key] = n.NextStr;
+                }
+                return pairs;
             }
         }
 
@@ -150,8 +174,9 @@ namespace QYPlugin
                     return Encoding.Default.GetString(buffer);
                 }
             }
+            public byte[] NextToken => br.ReadBytes(NextShort);
 
-            public void skip(short l) => br.ReadBytes(l);
+            public void Skip(short l) => br.ReadBytes(l);
         }
 
         private static int AuthCode { get; set; }
@@ -393,7 +418,7 @@ namespace QYPlugin
             /// </summary>
             /// <param name="group">群号</param>
             /// <returns>是否成功</returns>
-            public static bool AllowAnonymous(string group)
+            public static bool EnableAnonymous(string group)
             {
                 bool isok = long.TryParse(group, out long t);
                 if (!isok)
@@ -405,7 +430,7 @@ namespace QYPlugin
             /// </summary>
             /// <param name="group">群号</param>
             /// <returns>是否成功</returns>
-            public static bool DisallowAnonymous(string group)
+            public static bool DisableAnonymous(string group)
             {
                 bool isok = long.TryParse(group, out long t);
                 if (!isok)
@@ -554,16 +579,93 @@ namespace QYPlugin
                 Unpack u = new Unpack(b64);
                 long a = u.NextLong;
                 long b = u.NextLong;
-                u.skip(4);
+                u.Skip(4);
                 int c = u.NextInt;
                 int d = u.NextInt;
                 string e = u.NextStr;
-                u.skip(u.NextShort);
+                u.Skip(u.NextShort);
                 int f = u.NextInt;
                 return new GroupInfo(a, b, c, d, e, f, u.NextStr);
             }
             [DllImport("QYOffer.dll")]
             private static extern IntPtr QY_getGroupInfo(int authCode, long qqID, long targ);
+
+            /// <summary>
+            /// 允许群临时会话
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <returns>是否成功</returns>
+            public static bool EnableTmpSession(string group)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                return QY_setGroupPrivateSession(AuthCode, LongQQ, t, 1) == 0;
+            }
+            /// <summary>
+            /// 禁止群临时会话
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <returns>是否成功</returns>
+            public static bool DisableTmpSession(string group)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                return QY_setGroupPrivateSession(AuthCode, LongQQ, t, 0) == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_setGroupPrivateSession(int authCode, long qqID, long targ, int s);
+
+            /// <summary>
+            /// 允许发起多人聊天
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <returns>是否成功</returns>
+            public static bool EnableCreateMultiChat(string group)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                return QY_setGroupManyPeopleChat(AuthCode, LongQQ, t, 1) == 0;
+            }
+            /// <summary>
+            /// 禁止发起多人聊天
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <returns>是否成功</returns>
+            public static bool DisableCreateMultiChat(string group)
+            {
+                bool isok = long.TryParse(group, out long t);
+                if (!isok)
+                    return false;
+                return QY_setGroupManyPeopleChat(AuthCode, LongQQ, t, 0) == 0;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern int QY_setGroupManyPeopleChat(int authCode, long qqID, long targ, int s);
+
+            /// <summary>
+            /// 取群成员列表
+            /// </summary>
+            /// <param name="group">群号</param>
+            /// <returns></returns>
+            public static List<GroupMember> GetMembers(string group)
+            {
+                long.TryParse(group, out long t);
+                string b64 = Marshal.PtrToStringAnsi(QY_getGroupMemberList(AuthCode, LongQQ, t));
+                Unpack u = new Unpack(b64);
+                int count = u.NextInt;
+                List<GroupMember> l = new List<GroupMember>();
+                for (int i = 0; i < count; i++)
+                {
+                    Unpack n = new Unpack(u.NextToken);
+                    l.Add(new GroupMember(n.NextLong, n.NextStr, n.NextStr, n.NextInt, n.NextInt, n.NextStr, n.NextInt, n.NextInt, n.NextStr, n.NextInt, n.NextInt, n.NextStr, n.NextInt, n.NextInt));
+                }
+                return l;
+            }
+            [DllImport("QYOffer.dll")]
+            private static extern IntPtr QY_getGroupMemberList(int authCode, long qqID, long targ);
+
         }
 
         /// <summary>
@@ -727,6 +829,39 @@ namespace QYPlugin
         other
     }
     /// <summary>
+    /// 性别
+    /// </summary>
+    public enum Gender
+    {
+        /// <summary>
+        /// 男性
+        /// </summary>
+        male,
+        /// <summary>
+        /// 女性
+        /// </summary>
+        female
+    }
+    /// <summary>
+    /// 群成员的身份
+    /// </summary>
+    public enum Role
+    {
+        /// <summary>
+        /// 群员
+        /// </summary>
+        member = 1,
+        /// <summary>
+        /// 管理员
+        /// </summary>
+        admin = 2,
+        /// <summary>
+        /// 群主
+        /// </summary>
+        master = 3
+    }
+
+    /// <summary>
     /// 群组信息
     /// </summary>
     public struct GroupInfo
@@ -771,6 +906,85 @@ namespace QYPlugin
             Description = g;
         }
     }
+    /// <summary>
+    /// 群成员信息
+    /// </summary>
+    public struct GroupMember
+    {
+        /// <summary>
+        /// QQ 号
+        /// </summary>
+        public string QQ { get; }
+        /// <summary>
+        /// 昵称
+        /// </summary>
+        public string Nick { get; }
+        /// <summary>
+        /// 群名片
+        /// </summary>
+        public string Card { get; }
+        /// <summary>
+        /// 性别
+        /// </summary>
+        public Gender Gender { get; }
+        /// <summary>
+        /// 年龄
+        /// </summary>
+        public int Age { get; }
+        /// <summary>
+        /// 地区
+        /// </summary>
+        public string Region { get; }
+        /// <summary>
+        /// 加群时间
+        /// </summary>
+        public int JoinTime { get; }
+        /// <summary>
+        /// 上次发言时间
+        /// </summary>
+        public int LastSeen { get; }
+        /// <summary>
+        /// 等级
+        /// </summary>
+        public string Level { get; }
+        /// <summary>
+        /// 身份
+        /// </summary>
+        public Role Role { get; }
+        /// <summary>
+        /// 专属头衔
+        /// </summary>
+        public string Title { get; }
+        /// <summary>
+        /// 专属头衔过期时间
+        /// </summary>
+        public int TitleExp { get; }
+        /// <summary>
+        /// 不良记录成员
+        /// </summary>
+        public bool BadGuy { get; }
+        /// <summary>
+        /// 允许修改群名片
+        /// </summary>
+        public bool AllowedCardModify { get; }
+        public GroupMember(long a, string b, string c, int d, int e, string f, int g, int h, string i, int j, int k, string l, int m, int n)
+        {
+            QQ = a.ToString();
+            Nick = b;
+            Card = c;
+            Gender = (Gender)d;
+            Age = e;
+            Region = f;
+            JoinTime = g;
+            LastSeen = h;
+            Level = i;
+            Role = (Role)j;
+            BadGuy = k == 1;
+            Title = l;
+            TitleExp = m;
+            AllowedCardModify = n == 1;
+        }
+    }
 
     public class FriendMsgArgs : EventArgs
     {
@@ -813,4 +1027,61 @@ namespace QYPlugin
         /// <returns>是否成功</returns>
         public new bool Reply(string msg) => Robot.Send.GTmp(FromGroup, FromQQ, msg);
     }
+    public class GroupMsgArgs : EventArgs
+    {
+        public GroupMsgArgs(long a, long b, string c, string d, string e, string f, string g, int h)
+        {
+            FromQQ = a.ToString();
+            FromGroup = b.ToString();
+            Msg = c;
+            SrcMsg = d;
+            Card = e;
+            Title = f;
+            MsgInfo = g;
+            AuthCode = h;
+        }
+        /// <summary>
+        /// 发送这条消息的人
+        /// </summary>
+        public string FromQQ { get; }
+        /// <summary>
+        /// 来源群组
+        /// </summary>
+        public string FromGroup { get; }
+        /// <summary>
+        /// 消息内容
+        /// </summary>
+        public string Msg { get; }
+        /// <summary>
+        /// 用于引用的消息头，如需回复消息则把它加在发送的消息的最前面。如果快捷回复则无需加入，把第二个参数设为 true 即可
+        /// </summary>
+        public string SrcMsg { get; }
+
+        /// <summary>
+        /// 群名片,若无群名片则为昵称
+        /// </summary>
+        public string Card { get; }
+        /// <summary>
+        /// 专属头衔
+        /// </summary>
+        public string Title { get; }
+
+        private string MsgInfo { get; }//撤回用的
+        private int AuthCode { get; }
+
+        /// <summary>
+        /// 快捷回复
+        /// </summary>
+        /// <param name="msg">消息内容</param>
+        /// <param name="includeSrcMsg">是否引用原始消息，设为 true 相当于在 msg 开头加入 SrcMsg</param>
+        public void Reply(string msg, bool includeSrcMsg) => Robot.Send.Group(FromGroup, (includeSrcMsg ? SrcMsg : "") + msg);
+        /// <summary>
+        /// 撤回这条消息
+        /// </summary>
+        /// <returns></returns>
+        public bool Recall() => QY_setMessageSvcMsgWithDraw(AuthCode, Convert.ToInt64(Robot.LoginQQ), MsgInfo) == 0;
+        [DllImport("QYOffer.dll")]
+        private static extern int QY_setMessageSvcMsgWithDraw(int authCode, long qqID, string msg);
+    }
+
 }

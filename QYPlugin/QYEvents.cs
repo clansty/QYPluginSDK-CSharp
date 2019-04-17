@@ -28,5 +28,11 @@ namespace QYPlugin
             // 这里处理群临时消息
             e.Reply("你发了群临时消息 " + e.Msg);
         }
+        public static void GroupMsg(GroupMsgArgs e)
+        {
+            // 处理群消息
+            e.Reply(e.Msg, true);
+            e.Recall(); //撤回
+        }
     }
 }
