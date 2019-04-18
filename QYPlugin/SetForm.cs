@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace QYPlugin
@@ -53,6 +46,8 @@ namespace QYPlugin
 
         private void Like_Click(object sender, EventArgs e)
         {
+            while (Robot.Like(targqq.Text) == LikeResult.success)
+                continue;
             OutPut = Robot.Like(targqq.Text).ToString();
         }
 

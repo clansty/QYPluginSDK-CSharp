@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 // 建议用户不要更改此文件，除非你确信你看得懂这里面所有代码并且你的操作没有问题
 namespace QYPlugin
@@ -45,7 +43,7 @@ namespace QYPlugin
             [DllExport(CallingConvention.StdCall)]
             public static int _eventPrivateMsg(long QQID, int subType, long sendTime, long fromQQ, long fromID, string fromInfo, string msg, string info, int test)
             {
-                switch(subType)
+                switch (subType)
                 {
                     case 11:
                         QYEvents.FriendMsg(new FriendMsgArgs(fromQQ, msg));
@@ -79,6 +77,15 @@ namespace QYPlugin
             [DllExport(CallingConvention.StdCall)]
             public static int _eventSystem_GroupAdmin(long QQID, int subType, long sendTime, long fromGroup, long beingOperateQQ)
             {
+                switch (subType)
+                {
+                    case 1:
+                        QYEvents.GroupAdminRemoved(new GroupAdminChangedArgs(fromGroup, beingOperateQQ));
+                        break;
+                    case 2:
+                        QYEvents.GroupAdminAdded(new GroupAdminChangedArgs(fromGroup, beingOperateQQ));
+                        break;
+                }
                 return 0;
             }
             [DllExport(CallingConvention.StdCall)]
@@ -112,7 +119,7 @@ namespace QYPlugin
                 Dictionary<string, string> pairs = new Dictionary<string, string>();
                 Unpack u = new Unpack(base64);
                 int count = u.NextInt;
-                for(int i = 0; i < count; i++)
+                for (int i = 0; i < count; i++)
                 {
                     Unpack n = new Unpack(u.NextToken);
                     string key = n.NextStr;
@@ -134,7 +141,7 @@ namespace QYPlugin
                 byte[] bytes = Convert.FromBase64String(base64);
                 MemoryStream ms = new MemoryStream(bytes);
                 br = new BinaryReader(ms);
-            }        
+            }
 
             private BinaryReader br;
 
@@ -684,404 +691,6 @@ namespace QYPlugin
         private static extern int QY_setDelFriend(int authCode, long qqID, long targ);
 
 
-    }
-
-    /// <summary>
-    /// 进行 LQ 码生成
-    /// </summary>
-    public static class LQ
-    {
-        /// <summary>
-        /// 艾特全员
-        /// </summary>
-        public const string AtAll = "[@all] ";
-        /// <summary>
-        /// 艾特人
-        /// </summary>
-        /// <param name="qq">人</param>
-        /// <returns></returns>
-        public static string At(string qq) => $"[@{qq}] ";
-
-        /// <summary>
-        /// 表示本地图片，插入到待发送的消息里
-        /// </summary>
-        /// <param name="path">图片路径</param>
-        /// <returns></returns>
-        public static string LocalPic(string path) => $"[LQ:image,path={path.Escape()}]";
-        /// <summary>
-        /// 表示网络图片，插入到待发送的消息里
-        /// </summary>
-        /// <param name="url">网络图片 URL 地址</param>
-        /// <returns></returns>
-        public static string WebPic(string url) => $"[LQ:image,urls={url.Escape()}]";
-        /// <summary>
-        /// 闪照
-        /// </summary>
-        /// <param name="path">图片路径</param>
-        /// <returns></returns>
-        public static string FlashPic(string path) => $"[LQ:flashpic,path={path.Escape()}]";
-        /// <summary>
-        /// 发送本地语音
-        /// </summary>
-        /// <param name="path">语音文件路径</param>
-        /// <returns></returns>
-        public static string Record(string path) => $"[LQ:record,path={path.Escape()}]";
-
-        /// <summary>
-        /// 转义
-        /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
-        private static string Escape(this string str) => str.Replace("&", "&amp;").Replace("[", "&#91;").Replace("]", "&#93;").Replace(",", "&#44;");
-    }
-
-    /// <summary>
-    /// 表示机器人的在线状态
-    /// </summary>
-    public enum OnlineStatus
-    {
-        /// <summary>
-        /// 表示机器人当前离线
-        /// </summary>
-        offline = 0,
-        /// <summary>
-        /// 表示机器人当前在线
-        /// </summary>
-        online = 1
-    }
-    /// <summary>
-    /// 日志输出的字体颜色
-    /// </summary>
-    public enum LogColor
-    {
-        /// <summary>
-        /// 暗淡的灰色
-        /// <para>6908265
-        /// #696969
-        /// 105,105,105</para>
-        /// </summary>
-        dimGray = 0,
-        /// <summary>
-        /// 纯黑
-        /// <para>0         #000000  0,0,0</para>
-        /// </summary>
-        black = 10,
-        /// <summary>
-        /// 深紫罗兰的蓝色
-        /// <para>14822282  #8A2BE2  138,43,226</para>
-        /// </summary>
-        blueViolet = 11,
-        /// <summary>
-        /// 棕色
-        /// <para>2763429   #A52A2A  165,42,42</para>
-        /// </summary>
-        brown = 12,
-        /// <summary>
-        /// 纯蓝
-        /// <para>16711680  #0000FF  0,0,255</para>
-        /// </summary>
-        blue = 13,
-        /// <summary>
-        /// 纯绿
-        /// <para>32768     #008000  0,128,0</para>
-        /// </summary>
-        green = 14,
-        /// <summary>
-        /// 深橙色
-        /// <para>36095     #FF8C00  255,140,0</para>
-        /// </summary>
-        darkOrange = 20,
-        /// <summary>
-        /// 深粉色
-        /// <para>9639167   #FF1493  255,20,147</para>
-        /// </summary>
-        deepPink = 30,
-        /// <summary>
-        /// 纯红
-        /// <para>255       #FF0000  255,0,0</para>
-        /// </summary>
-        red = 40
-    }
-    /// <summary>
-    /// 点赞的结果
-    /// </summary>
-    public enum LikeResult
-    {
-        /// <summary>
-        /// 赞成功
-        /// </summary>
-        success,
-        /// <summary>
-        /// 对方不允许非好友点赞
-        /// </summary>
-        notAllowed,
-        /// <summary>
-        /// 今天已赞满
-        /// </summary>
-        full,
-        /// <summary>
-        /// 指定的目标不是正确的 QQ 号
-        /// </summary>
-        notQQ,
-        /// <summary>
-        /// 其他错误
-        /// </summary>
-        other
-    }
-    /// <summary>
-    /// 性别
-    /// </summary>
-    public enum Gender
-    {
-        /// <summary>
-        /// 男性
-        /// </summary>
-        male,
-        /// <summary>
-        /// 女性
-        /// </summary>
-        female
-    }
-    /// <summary>
-    /// 群成员的身份
-    /// </summary>
-    public enum Role
-    {
-        /// <summary>
-        /// 群员
-        /// </summary>
-        member = 1,
-        /// <summary>
-        /// 管理员
-        /// </summary>
-        admin = 2,
-        /// <summary>
-        /// 群主
-        /// </summary>
-        master = 3
-    }
-
-    /// <summary>
-    /// 群组信息
-    /// </summary>
-    public struct GroupInfo
-    {
-        /// <summary>
-        /// 群号
-        /// </summary>
-        public string ID { get; }
-        /// <summary>
-        /// 群主QQ
-        /// </summary>
-        public string Master { get; }
-        /// <summary>
-        /// 最大人口容量
-        /// </summary>
-        public int MaxPopu { get; }
-        /// <summary>
-        /// 当前人口数
-        /// </summary>
-        public int Popu { get; }
-        /// <summary>
-        /// 群名称
-        /// </summary>
-        public string Name { get; }
-        /// <summary>
-        /// 群等级
-        /// </summary>
-        public int Level { get; }
-        /// <summary>
-        /// 群介绍
-        /// </summary>
-        public string Description { get; }
-
-        public GroupInfo(long a, long b, int c, int d, string e, int f, string g)
-        {
-            ID = a.ToString();
-            Master = b.ToString();
-            MaxPopu = c;
-            Popu = d;
-            Name = e;
-            Level = f;
-            Description = g;
-        }
-    }
-    /// <summary>
-    /// 群成员信息
-    /// </summary>
-    public struct GroupMember
-    {
-        /// <summary>
-        /// QQ 号
-        /// </summary>
-        public string QQ { get; }
-        /// <summary>
-        /// 昵称
-        /// </summary>
-        public string Nick { get; }
-        /// <summary>
-        /// 群名片
-        /// </summary>
-        public string Card { get; }
-        /// <summary>
-        /// 性别
-        /// </summary>
-        public Gender Gender { get; }
-        /// <summary>
-        /// 年龄
-        /// </summary>
-        public int Age { get; }
-        /// <summary>
-        /// 地区
-        /// </summary>
-        public string Region { get; }
-        /// <summary>
-        /// 加群时间
-        /// </summary>
-        public int JoinTime { get; }
-        /// <summary>
-        /// 上次发言时间
-        /// </summary>
-        public int LastSeen { get; }
-        /// <summary>
-        /// 等级
-        /// </summary>
-        public string Level { get; }
-        /// <summary>
-        /// 身份
-        /// </summary>
-        public Role Role { get; }
-        /// <summary>
-        /// 专属头衔
-        /// </summary>
-        public string Title { get; }
-        /// <summary>
-        /// 专属头衔过期时间
-        /// </summary>
-        public int TitleExp { get; }
-        /// <summary>
-        /// 不良记录成员
-        /// </summary>
-        public bool BadGuy { get; }
-        /// <summary>
-        /// 允许修改群名片
-        /// </summary>
-        public bool AllowedCardModify { get; }
-        public GroupMember(long a, string b, string c, int d, int e, string f, int g, int h, string i, int j, int k, string l, int m, int n)
-        {
-            QQ = a.ToString();
-            Nick = b;
-            Card = c;
-            Gender = (Gender)d;
-            Age = e;
-            Region = f;
-            JoinTime = g;
-            LastSeen = h;
-            Level = i;
-            Role = (Role)j;
-            BadGuy = k == 1;
-            Title = l;
-            TitleExp = m;
-            AllowedCardModify = n == 1;
-        }
-    }
-
-    public class FriendMsgArgs : EventArgs
-    {
-        public FriendMsgArgs(long fq, string m)
-        {
-            FromQQ = fq.ToString();
-            Msg = m;
-        }
-        /// <summary>
-        /// 发送这条消息的 QQ
-        /// </summary>
-        public string FromQQ { get; }
-        /// <summary>
-        /// 消息内容
-        /// </summary>
-        public string Msg { get; }
-
-        /// <summary>
-        /// 快捷回复这条消息，即向 FromQQ 发送好友消息
-        /// </summary>
-        /// <param name="msg">回复消息内容</param>
-        /// <returns>是否成功</returns>
-        public bool Reply(string msg) => Robot.Send.Friend(FromQQ, msg);
-    }
-    public class GroupTmpMsgArgs : FriendMsgArgs
-    {
-        public GroupTmpMsgArgs(long fq, long fg, string m) : base(fq, m)
-        {
-            FromGroup = fg.ToString();
-        }
-        /// <summary>
-        /// 发送者所在的群号
-        /// </summary>
-        public string FromGroup { get; }
-        
-        /// <summary>
-        /// 快捷回复这条消息，即向 FromGroup 的 FromQQ 发送群临时消息
-        /// </summary>
-        /// <param name="msg">回复消息内容</param>
-        /// <returns>是否成功</returns>
-        public new bool Reply(string msg) => Robot.Send.GTmp(FromGroup, FromQQ, msg);
-    }
-    public class GroupMsgArgs : EventArgs
-    {
-        public GroupMsgArgs(long a, long b, string c, string d, string e, string f, string g, int h)
-        {
-            FromQQ = a.ToString();
-            FromGroup = b.ToString();
-            Msg = c;
-            SrcMsg = d;
-            Card = e;
-            Title = f;
-            MsgInfo = g;
-            AuthCode = h;
-        }
-        /// <summary>
-        /// 发送这条消息的人
-        /// </summary>
-        public string FromQQ { get; }
-        /// <summary>
-        /// 来源群组
-        /// </summary>
-        public string FromGroup { get; }
-        /// <summary>
-        /// 消息内容
-        /// </summary>
-        public string Msg { get; }
-        /// <summary>
-        /// 用于引用的消息头，如需回复消息则把它加在发送的消息的最前面。如果快捷回复则无需加入，把第二个参数设为 true 即可
-        /// </summary>
-        public string SrcMsg { get; }
-
-        /// <summary>
-        /// 群名片,若无群名片则为昵称
-        /// </summary>
-        public string Card { get; }
-        /// <summary>
-        /// 专属头衔
-        /// </summary>
-        public string Title { get; }
-
-        private string MsgInfo { get; }//撤回用的
-        private int AuthCode { get; }
-
-        /// <summary>
-        /// 快捷回复
-        /// </summary>
-        /// <param name="msg">消息内容</param>
-        /// <param name="includeSrcMsg">是否引用原始消息，设为 true 相当于在 msg 开头加入 SrcMsg</param>
-        public void Reply(string msg, bool includeSrcMsg) => Robot.Send.Group(FromGroup, (includeSrcMsg ? SrcMsg : "") + msg);
-        /// <summary>
-        /// 撤回这条消息
-        /// </summary>
-        /// <returns></returns>
-        public bool Recall() => QY_setMessageSvcMsgWithDraw(AuthCode, Convert.ToInt64(Robot.LoginQQ), MsgInfo) == 0;
-        [DllImport("QYOffer.dll")]
-        private static extern int QY_setMessageSvcMsgWithDraw(int authCode, long qqID, string msg);
     }
 
 }

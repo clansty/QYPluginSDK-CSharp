@@ -56,7 +56,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="QYSystem.cs" />
+    <Compile Include="QYSystem\Args.cs" />
+    <Compile Include="QYSystem\Structs.cs" />
+    <Compile Include="QYSystem\LQ.cs" />
+    <Compile Include="QYSystem\Enums.cs" />
+    <Compile Include="QYSystem\QYSystem.cs" />
     <Compile Include="QYEvents.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SetForm.cs">

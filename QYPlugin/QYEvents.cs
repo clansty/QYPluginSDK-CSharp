@@ -21,18 +21,28 @@ namespace QYPlugin
         public static void FriendMsg(FriendMsgArgs e)
         {
             // 这里处理好友消息
-            e.Reply("你发了好友消息 " + e.Msg);
+            //e.Reply("你发了好友消息 " + e.Msg);
         }
         public static void GroupTmpMsg(GroupTmpMsgArgs e)
         {
             // 这里处理群临时消息
-            e.Reply("你发了群临时消息 " + e.Msg);
+            //e.Reply("你发了群临时消息 " + e.Msg);
         }
         public static void GroupMsg(GroupMsgArgs e)
         {
             // 处理群消息
-            e.Reply(e.Msg, true);
-            e.Recall(); //撤回
+            //e.Reply(e.Msg, true);
+            //e.Recall(); //撤回
         }
+        public static void GroupAdminAdded(GroupAdminChangedArgs e)
+        {
+            Robot.Log($"{e.Group} 的 {e.QQ} 被设为管理员");
+        }
+
+        public static void GroupAdminRemoved(GroupAdminChangedArgs e)
+        {
+            Robot.Log($"{e.Group} 的 {e.QQ} 被取消管理员");
+        }
+
     }
 }
