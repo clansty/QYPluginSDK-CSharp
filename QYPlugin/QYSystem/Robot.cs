@@ -106,12 +106,22 @@ namespace QYPlugin
             [DllExport(CallingConvention.StdCall)]
             public static int _eventRequest_AddFriend(long QQID, int subType, long sendTime, long fromQQ, string source, string msg, string responseFlag)
             {
-
+                QYEvents.RequestAddFriend(new RequestAddFriendArgs(fromQQ, msg, responseFlag, AuthCode));
                 return 0;
             }
             [DllExport(CallingConvention.StdCall)]
             public static int _eventRequest_AddGroup(long QQID, int subType, long sendTime, long fromGroup, long fromQQ, string source, string msg, string responseFlag)
             {
+                switch (subType)
+                {
+                    case 1:
+                    case 2:
+                        QYEvents.RequestAddGroup(new RequestGroupArgs(fromGroup, msg, responseFlag, AuthCode, fromQQ.ToString(), subType));
+                        break;
+                    case 3:
+                        QYEvents.RequestInviteGroup(new RequestGroupArgs(fromGroup, msg, responseFlag, AuthCode, source, subType));
+                        break;
+                }
                 return 0;
             }
 

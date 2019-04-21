@@ -46,9 +46,24 @@ namespace QYPlugin
 
         public static void RequestAddFriend(RequestAddFriendArgs e)
         {
+            //别人加你好友
+
             //e.Accept(e.Msg);//同意
             //e.Reject("你不好看");//拒绝
         }
+
+        public static void RequestAddGroup(RequestGroupArgs e)
+        {
+            //别人申请加入你管理的群
+
+            //e.Accept();
+        }
+
+        public static void RequestInviteGroup(RequestGroupArgs e)
+        {
+            //别人邀请你加群
+        }
+
         //好友申请，加群申请，群文件等事件尚未完成，敬请期待
     }
 }

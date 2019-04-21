@@ -120,6 +120,14 @@ namespace QYPlugin
     }
     public class RequestAddFriendArgs : EventArgs
     {
+        public RequestAddFriendArgs(long a ,string b, string c, int d)
+        {
+            FromQQ = a.ToString();
+            Msg = b;
+            ResponseFlag = c;
+            AuthCode = d;
+        }
+
         /// <summary>
         /// 申请加你的人
         /// </summary>
@@ -140,11 +148,53 @@ namespace QYPlugin
         /// <summary>
         /// 拒绝该请求
         /// </summary>
-        /// <param name="remark">理由</param>
-        public void Reject(string remark = "") => QY_setFriendAddRequest(AuthCode, Convert.ToInt64(Robot.LoginQQ), ResponseFlag, 1, remark);
+        /// <param name="reason">理由</param>
+        public void Reject(string reason = "") => QY_setFriendAddRequest(AuthCode, Convert.ToInt64(Robot.LoginQQ), ResponseFlag, 1, reason);
 
         [DllImport("QYOffer.dll")]
         private static extern int QY_setFriendAddRequest(int authCode, long qqID, string msg, int a, string b);
+
+    }
+    public class RequestGroupArgs : EventArgs
+    {
+        public RequestGroupArgs(long a, string b, string c, int d, string e, int f)
+        {
+            Group = a.ToString();
+            Msg = b;
+            ResponseFlag = c;
+            AuthCode = d;
+            FromQQ = e;
+            St = f;
+        }
+
+        /// <summary>
+        /// 申请加群或邀请你的人
+        /// </summary>
+        public string FromQQ { get; }
+        /// <summary>
+        /// 申请加入的群组
+        /// </summary>
+        public string Group { get; }
+        /// <summary>
+        /// 附加信息
+        /// </summary>
+        public string Msg { get; }
+
+        private string ResponseFlag { get; }
+        private int AuthCode { get; }
+        private int St { get; }
+
+        /// <summary>
+        /// 同意该请求
+        /// </summary>
+        public void Accept() => QY_setGroupAddRequest(AuthCode, Convert.ToInt64(Robot.LoginQQ), ResponseFlag, St == 1 ? 0 : 1, 0, "");
+        /// <summary>
+        /// 拒绝该请求
+        /// </summary>
+        /// <param name="reason">理由</param>
+        public void Reject(string reason = "") => QY_setGroupAddRequest(AuthCode, Convert.ToInt64(Robot.LoginQQ), ResponseFlag, St == 1 ? 0 : 1, 1, reason);
+        [DllImport("QYOffer.dll")]
+        private static extern int QY_setGroupAddRequest(int authCode, long qqID, string msg, int a, int c, string b);
 
     }
 }
