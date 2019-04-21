@@ -44,5 +44,6 @@ namespace QYPlugin
             Robot.Log($"{e.Group} 的 {e.QQ} 被取消管理员");
         }
 
+        //好友申请，加群申请，群文件等事件尚未完成，敬请期待
     }
 }
