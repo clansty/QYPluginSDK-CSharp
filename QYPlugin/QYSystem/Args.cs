@@ -118,5 +118,33 @@ namespace QYPlugin
             QQ = b.ToString();
         }
     }
+    public class RequestAddFriendArgs : EventArgs
+    {
+        /// <summary>
+        /// 申请加你的人
+        /// </summary>
+        public string FromQQ { get; }
+        /// <summary>
+        /// 附加信息
+        /// </summary>
+        public string Msg { get; }
 
+        private string ResponseFlag { get; }
+        private int AuthCode { get; }
+
+        /// <summary>
+        /// 同意该请求
+        /// </summary>
+        /// <param name="remark">你给别人的备注</param>
+        public void Accept(string remark = "") => QY_setFriendAddRequest(AuthCode, Convert.ToInt64(Robot.LoginQQ), ResponseFlag, 0, remark);
+        /// <summary>
+        /// 拒绝该请求
+        /// </summary>
+        /// <param name="remark">理由</param>
+        public void Reject(string remark = "") => QY_setFriendAddRequest(AuthCode, Convert.ToInt64(Robot.LoginQQ), ResponseFlag, 1, remark);
+
+        [DllImport("QYOffer.dll")]
+        private static extern int QY_setFriendAddRequest(int authCode, long qqID, string msg, int a, string b);
+
+    }
 }

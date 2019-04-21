@@ -44,6 +44,11 @@ namespace QYPlugin
             Robot.Log($"{e.Group} 的 {e.QQ} 被取消管理员");
         }
 
+        public static void RequestAddFriend(RequestAddFriendArgs e)
+        {
+            //e.Accept(e.Msg);//同意
+            //e.Reject("你不好看");//拒绝
+        }
         //好友申请，加群申请，群文件等事件尚未完成，敬请期待
     }
 }

@@ -106,6 +106,7 @@ namespace QYPlugin
             [DllExport(CallingConvention.StdCall)]
             public static int _eventRequest_AddFriend(long QQID, int subType, long sendTime, long fromQQ, string source, string msg, string responseFlag)
             {
+
                 return 0;
             }
             [DllExport(CallingConvention.StdCall)]
